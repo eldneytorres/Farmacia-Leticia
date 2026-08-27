@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="Content-Security-Policy" content="default-src 'self' farmaphoto:; img-src 'self' farmaphoto: data:; style-src 'self' 'unsafe-inline'; script-src 'self';" />
+<title>Farmacinha Leticia</title>
+<link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+<div id="app">
+  <aside class="sidebar">
+    <div class="logo">💊<span>Farmacinha<br><b>Leticia</b></span></div>
+    <nav>
+      <button class="nav-item ativo" data-view="inicio">🏠 Início</button>
+      <button class="nav-item" data-view="lista">📋 Medicamentos</button>
+      <button class="nav-item" data-view="cadastro">➕ Cadastrar</button>
+      <button class="nav-item" data-view="config">⚙️ Configurações</button>
+    </nav>
+    <div class="rodape">Dados salvos<br>no seu computador</div>
+  </aside>
+
+  <main class="conteudo">
+
+    <!-- INÍCIO -->
+    <section id="view-inicio" class="view ativa">
+      <h1>Resumo da farmácia</h1>
+      <div class="cards-resumo">
+        <div class="card-resumo total"><div class="num" id="r-total">0</div><div class="rot">Total de medicamentos</div></div>
+        <div class="card-resumo ok"><div class="num" id="r-noprazo">0</div><div class="rot">No prazo</div></div>
+        <div class="card-resumo aviso"><div class="num" id="r-proximos">0</div><div class="rot">Próximos do vencimento</div></div>
+        <div class="card-resumo perigo"><div class="num" id="r-vencidos">0</div><div class="rot">Vencidos</div></div>
+      </div>
+
+      <div id="alertas" class="alertas"></div>
+    </section>
+
+    <!-- LISTA -->
+    <section id="view-lista" class="view">
+      <div class="topo-lista">
+        <h1>Medicamentos</h1>
+        <input type="search" id="busca" placeholder="Buscar por nome ou indicação (ex.: dor, febre, alergia)…" />
+      </div>
+      <div id="lista" class="lista"></div>
+    </section>
+
+    <!-- CADASTRO / EDIÇÃO -->
+    <section id="view-cadastro" class="view">
+      <h1 id="titulo-cadastro">Cadastrar medicamento</h1>
+
+      <div class="metodos" id="metodos-cadastro">
+        <div class="metodo">
+          <h3>📱 Pelo celular (iPhone)</h3>
+          <p>Escaneie o código com a câmera do celular e fotografe a caixa. A IA preenche os campos.</p>
+          <div id="qr-area" class="qr-area">carregando…</div>
+        </div>
+        <div class="metodo">
+          <h3>💻 Por arquivo no computador</h3>
+          <p>Selecione fotos ou um vídeo do medicamento já salvos no PC.</p>
+          <button class="btn primary" id="btn-arquivo">Escolher foto/vídeo</button>
+        </div>
+        <div class="metodo">
+          <h3>✍️ Manualmente</h3>
+          <p>Preencher os campos você mesmo, sem foto.</p>
+          <button class="btn ghost" id="btn-manual">Preencher manualmente</button>
+        </div>
+      </div>
+
+      <div id="ia-status" class="ia-status oculto"></div>
+
+      <form id="form-med" class="form oculto">
+        <input type="hidden" id="f-id" />
+        <div class="grid2">
+          <label class="campo">Nome do medicamento *
+            <input id="f-nome" required />
+          </label>
+          <label class="campo">Forma farmacêutica *
+            <input id="f-forma" placeholder="comprimido, xarope, gotas…" required />
+          </label>
+          <label class="campo">Quantidade em estoque *
+            <input id="f-quantidade" type="number" min="0" step="1" required />
+          </label>
+          <label class="campo">Data de validade *
+            <input id="f-validade" type="date" required />
+          </label>
+        </div>
+
+        <label class="campo">Para que serve *
+          <textarea id="f-para" rows="2" required></textarea>
+        </label>
+        <label class="campo">Dosagem recomendada para adulto *
+          <textarea id="f-dosagem" rows="2" required></textarea>
+        </label>
+        <label class="campo">Principais contraindicações *
+          <textarea id="f-contra" rows="2" required></textarea>
+        </label>
+        <label class="campo">Indicações / sintomas (para busca)
+          <input id="f-indicacoes" placeholder="dor de cabeça, febre, gripe…" />
+        </label>
+
+        <div id="fotos-form" class="fotos-form"></div>
+
+        <div class="aviso-medico">⚠️ As sugestões da IA são apenas para organização doméstica. Confira a bula e consulte um profissional de saúde antes de usar qualquer medicamento.</div>
+
+        <div class="acoes-form">
+          <button type="submit" class="btn primary">Salvar medicamento</button>
+          <button type="button" class="btn ghost" id="btn-cancelar">Cancelar</button>
+        </div>
+      </form>
+    </section>
+
+    <!-- CONFIG -->
+    <section id="view-config" class="view">
+      <h1>Configurações</h1>
+      <form id="form-config" class="form estreito">
+        <label class="campo">Chave de API do Claude (Anthropic)
+          <input id="c-apikey" type="password" placeholder="sk-ant-..." />
+          <small>Necessária para ler as fotos automaticamente. Fica salva só no seu computador.</small>
+        </label>
+        <label class="campo">Modelo da IA
+          <select id="c-modelo">
+            <option value="claude-opus-5">Claude Opus 5 (melhor leitura)</option>
+            <option value="claude-sonnet-5">Claude Sonnet 5 (mais econômico)</option>
+            <option value="claude-haiku-4-5">Claude Haiku 4.5 (mais barato/rápido)</option>
+          </select>
+        </label>
+        <div class="acoes-form">
+          <button type="submit" class="btn primary">Salvar configurações</button>
+          <span id="config-msg" class="config-msg"></span>
+        </div>
+      </form>
+    </section>
+
+  </main>
+</div>
+
+<!-- Modal de detalhe -->
+<div id="modal" class="modal oculto">
+  <div class="modal-caixa">
+    <button class="fechar" id="modal-fechar">×</button>
+    <div id="modal-conteudo"></div>
+  </div>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>

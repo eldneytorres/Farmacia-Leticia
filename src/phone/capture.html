@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Farmacinha Leticia — Enviar foto</title>
+<style>
+  :root { color-scheme: light dark; }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; font-family: -apple-system, system-ui, sans-serif;
+    background: #0f766e; color: #fff; min-height: 100vh;
+    padding: env(safe-area-inset-top) 16px 40px;
+  }
+  header { text-align: center; padding: 22px 0 8px; }
+  header h1 { font-size: 21px; margin: 0; }
+  header p { margin: 6px 0 0; opacity: .9; font-size: 14px; }
+  .card {
+    background: #fff; color: #1f2937; border-radius: 16px;
+    padding: 18px; margin-top: 16px; box-shadow: 0 6px 24px rgba(0,0,0,.25);
+  }
+  label.btn, button {
+    display: block; width: 100%; padding: 16px; border: 0; border-radius: 12px;
+    font-size: 16px; font-weight: 600; cursor: pointer; margin-top: 12px; text-align: center;
+  }
+  .primary { background: #0f766e; color: #fff; }
+  .secondary { background: #e2e8f0; color: #1f2937; }
+  input[type=file] { display: none; }
+  #previews { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+  .thumb { position: relative; width: 80px; height: 80px; border-radius: 8px; overflow: hidden; background: #cbd5e1; }
+  .thumb img, .thumb video { width: 100%; height: 100%; object-fit: cover; }
+  .thumb .rm { position: absolute; top: 2px; right: 2px; background: rgba(0,0,0,.65); color:#fff;
+    border-radius: 50%; width: 22px; height: 22px; line-height: 22px; text-align: center; font-size: 15px; }
+  #status { margin-top: 16px; text-align: center; font-size: 15px; min-height: 22px; font-weight: 600; }
+  .dica { font-size: 13px; color:#64748b; margin-top:14px; line-height:1.45; }
+  .erro { color: #fca5a5; }
+</style>
+</head>
+<body>
+  <header>
+    <h1>💊 Farmacinha Leticia</h1>
+    <p>Fotografe a embalagem do remédio</p>
+  </header>
+
+  <div class="card">
+    <label class="btn primary" for="fotoInput">📷 Tirar foto da caixa</label>
+    <input type="file" id="fotoInput" accept="image/*" capture="environment" multiple />
+
+    <label class="btn secondary" for="galeriaInput">🖼️ Escolher da galeria (foto ou vídeo)</label>
+    <input type="file" id="galeriaInput" accept="image/*,video/*" multiple />
+
+    <p class="dica">Dica: fotografe a <b>frente</b> da caixa (nome) e também a <b>lateral com a validade</b>. Pode enviar várias fotos do mesmo remédio.</p>
+
+    <div id="previews"></div>
+
+    <button class="primary" id="btnEnviar" disabled>Enviar para o computador</button>
+    <div id="status"></div>
+  </div>
+
+<script>
+(function () {
+  var token = new URLSearchParams(location.search).get('t') || '';
+  var arquivos = [];
+  var previews = document.getElementById('previews');
+  var status = document.getElementById('status');
+  var btnEnviar = document.getElementById('btnEnviar');
+
+  function atualiza() {
+    previews.innerHTML = '';
+    arquivos.forEach(function (item, i) {
+      var div = document.createElement('div');
+      div.className = 'thumb';
+      var url = URL.createObjectURL(item);
+      div.innerHTML = (item.type.indexOf('video') === 0)
+        ? '<video src="' + url + '" muted playsinline></video>'
+        : '<img src="' + url + '" />';
+      var rm = document.createElement('div');
+      rm.className = 'rm'; rm.textContent = '×';
+      rm.onclick = function () { arquivos.splice(i, 1); atualiza(); };
+      div.appendChild(rm);
+      previews.appendChild(div);
+    });
+    btnEnviar.disabled = arquivos.length === 0;
+  }
+
+  function adicionar(e) {
+    Array.prototype.forEach.call(e.target.files, function (f) { arquivos.push(f); });
+    atualiza();
+    e.target.value = '';
+  }
+  document.getElementById('fotoInput').onchange = adicionar;
+  document.getElementById('galeriaInput').onchange = adicionar;
+
+  btnEnviar.onclick = function () {
+    if (arquivos.length === 0) return;
+    btnEnviar.disabled = true;
+    status.className = ''; status.textContent = 'Enviando…';
+    var fd = new FormData();
+    fd.append('token', token);
+    arquivos.forEach(function (f, i) {
+      fd.append('midia', f, f.name || ('midia-' + i + '.jpg'));
+    });
+    fetch('/upload', { method: 'POST', body: fd })
+      .then(function (r) { return r.json(); })
+      .then(function (r) {
+        if (r.ok) {
+          status.textContent = '✅ Enviado! Volte ao computador para revisar o cadastro.';
+          arquivos = []; atualiza();
+        } else {
+          status.className = 'erro'; status.textContent = '⚠️ ' + (r.erro || 'Falha no envio.');
+          btnEnviar.disabled = false;
+        }
+      })
+      .catch(function () {
+        status.className = 'erro';
+        status.textContent = '⚠️ Não consegui enviar. Confirme que o celular está na mesma rede Wi-Fi do computador.';
+        btnEnviar.disabled = false;
+      });
+  };
+})();
+</script>
+</body>
+</html>
