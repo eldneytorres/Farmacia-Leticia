@@ -89,7 +89,7 @@ class Store {
     try {
       return JSON.parse(fs.readFileSync(this.settingsFile, 'utf-8'));
     } catch (e) {
-      return { apiKey: '', modelo: 'claude-opus-5' };
+      return { apiKey: '', modelo: 'claude-opus-5', pastaExport: '', exportarAuto: true };
     }
   }
 

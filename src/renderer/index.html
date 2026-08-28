@@ -128,6 +128,24 @@
           <span id="config-msg" class="config-msg"></span>
         </div>
       </form>
+
+      <h2 class="sub-titulo">📱 Consulta fora de casa (OneDrive)</h2>
+      <div class="form estreito">
+        <p class="explica">O app pode salvar automaticamente um <b>PDF “Minha Farmácia”</b> na sua pasta do OneDrive. Assim você consulta a lista pelo celular (app do OneDrive) mesmo com o computador desligado.</p>
+        <label class="campo linha-check">
+          <input type="checkbox" id="e-auto" />
+          <span>Atualizar o PDF automaticamente quando eu cadastrar ou editar</span>
+        </label>
+        <div class="campo">Pasta onde o PDF é salvo
+          <div class="pasta-box"><span id="e-pasta">—</span></div>
+          <small id="e-onedrive"></small>
+        </div>
+        <div class="acoes-form">
+          <button type="button" class="btn primary" id="e-exportar">📄 Gerar/atualizar PDF agora</button>
+          <button type="button" class="btn ghost" id="e-mudar">Mudar pasta</button>
+        </div>
+        <div id="e-msg" class="config-msg"></div>
+      </div>
     </section>
 
   </main>

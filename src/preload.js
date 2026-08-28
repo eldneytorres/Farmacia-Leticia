@@ -16,6 +16,11 @@ contextBridge.exposeInMainWorld('api', {
   extrairIA: (caminhos) => ipcRenderer.invoke('ia:extrair', caminhos),
   escolherArquivo: () => ipcRenderer.invoke('arquivo:escolher'),
 
+  exportInfo: () => ipcRenderer.invoke('export:info'),
+  exportSalvarConfig: (cfg) => ipcRenderer.invoke('export:salvarConfig', cfg),
+  exportAgora: () => ipcRenderer.invoke('export:agora'),
+  exportEscolherPasta: () => ipcRenderer.invoke('export:escolherPasta'),
+
   // Notificação quando o celular envia mídia.
   aoReceberCaptura: (callback) =>
     ipcRenderer.on('captura:recebida', (_e, arquivos) => callback(arquivos)),

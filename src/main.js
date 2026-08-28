@@ -8,11 +8,33 @@ const QRCode = require('qrcode');
 const { Store } = require('./store');
 const { iniciarServidor } = require('./server');
 const { extrairMedicamento } = require('./ai');
+const { exportarPDF, pastaOneDrive, temOneDrive, NOME_ARQUIVO } = require('./exportar');
 const meds = require('./meds');
 
 let janela = null;
 let store = null;
 let infoServidor = null;
+
+// Caminho do PDF de consulta (pasta escolhida ou OneDrive), + o nome do arquivo.
+function pastaExportAtual() {
+  const cfg = store.lerConfig();
+  return cfg.pastaExport || pastaOneDrive();
+}
+function destinoPdf() {
+  return path.join(pastaExportAtual(), NOME_ARQUIVO);
+}
+
+// Exporta o PDF se a exportação automática estiver ligada. Nunca lança erro.
+async function exportarSeAtivo() {
+  try {
+    const cfg = store.lerConfig();
+    if (cfg.exportarAuto === false) return;
+    const lista = store.listar().map(meds.comStatus);
+    await exportarPDF(destinoPdf(), lista, meds.resumir(store.listar()));
+  } catch (e) {
+    console.error('Falha ao exportar PDF automaticamente:', e);
+  }
+}
 
 // Esquema privilegiado para servir as fotos guardadas no disco com segurança.
 protocol.registerSchemesAsPrivileged([
@@ -156,10 +178,15 @@ ipcMain.handle('meds:salvar', (_e, med) => {
     fotos,
   };
   const salvo = store.salvar(limpo);
+  exportarSeAtivo();
   return { ok: true, medicamento: meds.comStatus(salvo) };
 });
 
-ipcMain.handle('meds:excluir', (_e, id) => ({ ok: store.excluir(id) }));
+ipcMain.handle('meds:excluir', (_e, id) => {
+  const ok = store.excluir(id);
+  exportarSeAtivo();
+  return { ok };
+});
 
 ipcMain.handle('config:ler', () => store.lerConfig());
 ipcMain.handle('config:salvar', (_e, cfg) => ({ ok: true, config: store.salvarConfig(cfg) }));
@@ -191,4 +218,46 @@ ipcMain.handle('arquivo:escolher', async () => {
     ],
   });
   return res.canceled ? [] : res.filePaths;
+});
+
+// ---- Exportação do PDF para o OneDrive ----
+
+ipcMain.handle('export:info', () => {
+  const cfg = store.lerConfig();
+  const caminho = destinoPdf();
+  return {
+    pasta: pastaExportAtual(),
+    caminho,
+    auto: cfg.exportarAuto !== false,
+    temOneDrive: temOneDrive(),
+    existe: fs.existsSync(caminho),
+  };
+});
+
+ipcMain.handle('export:salvarConfig', (_e, cfg) => {
+  store.salvarConfig({
+    exportarAuto: cfg.exportarAuto !== false,
+    ...(cfg.pastaExport !== undefined ? { pastaExport: cfg.pastaExport } : {}),
+  });
+  return { ok: true };
+});
+
+ipcMain.handle('export:agora', async () => {
+  try {
+    const lista = store.listar().map(meds.comStatus);
+    const caminho = await exportarPDF(destinoPdf(), lista, meds.resumir(store.listar()));
+    return { ok: true, caminho };
+  } catch (e) {
+    return { ok: false, erro: String(e && e.message || e) };
+  }
+});
+
+ipcMain.handle('export:escolherPasta', async () => {
+  const res = await dialog.showOpenDialog(janela, {
+    title: 'Escolher a pasta onde salvar o PDF (ex.: dentro do OneDrive)',
+    properties: ['openDirectory', 'createDirectory'],
+  });
+  if (res.canceled || res.filePaths.length === 0) return { ok: false };
+  store.salvarConfig({ pastaExport: res.filePaths[0] });
+  return { ok: true, pasta: res.filePaths[0] };
 });

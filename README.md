@@ -97,6 +97,23 @@ redes privadas.
 
 ---
 
+## Consultar fora de casa, com o PC desligado (PDF no OneDrive)
+
+Os dados ficam no computador, então a consulta em casa exige o PC ligado. Para
+consultar **de qualquer lugar**, o app pode gerar automaticamente um PDF
+**“Minha Farmácia”** dentro do seu **OneDrive** sempre que você cadastra ou edita
+um medicamento.
+
+1. Vá em **⚙️ Configurações → Consulta fora de casa (OneDrive)**.
+2. Deixe marcado **“Atualizar o PDF automaticamente”** (o app tenta usar a pasta do
+   OneDrive; se preferir, use **“Mudar pasta”**).
+3. Clique em **“Gerar/atualizar PDF agora”** para criar o arquivo pela primeira vez.
+
+No celular, abra o **app do OneDrive**, entre na pasta **Farmacinha Leticia**, abra
+o **Minha Farmacia.pdf** e use a busca do próprio leitor de PDF. Funciona com o
+**computador desligado**, porque o OneDrive sincroniza o arquivo para a nuvem e para
+o celular. É uma “fotografia” da farmácia, atualizada a cada mudança no PC.
+
 ## Onde os dados ficam salvos
 
 Tudo fica na pasta de dados do app do Windows:

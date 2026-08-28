@@ -128,6 +128,13 @@ h1 { font-size: 24px; margin-bottom: 22px; }
 .ia-status.erro { background: #fef2f2; border-color: #fecaca; color: var(--perigo); }
 
 .config-msg { color: var(--ok); font-size: 14px; }
+.sub-titulo { font-size: 18px; margin: 30px 0 14px; }
+.explica { font-size: 14px; color: var(--suave); margin-bottom: 16px; line-height: 1.5; }
+.linha-check { display: flex; align-items: center; gap: 10px; font-weight: 400; }
+.linha-check input { width: auto; margin: 0; flex-shrink: 0; }
+.linha-check span { font-size: 14.5px; }
+.pasta-box { margin-top: 6px; padding: 10px 13px; background: var(--fundo); border: 1px solid var(--borda);
+  border-radius: 9px; font-size: 13.5px; word-break: break-all; color: var(--texto); font-weight: 400; }
 .oculto { display: none !important; }
 
 /* Modal */

@@ -317,7 +317,43 @@ async function carregarConfig() {
   const cfg = await window.api.lerConfig();
   document.getElementById('c-apikey').value = cfg.apiKey || '';
   document.getElementById('c-modelo').value = cfg.modelo || 'claude-opus-5';
+  await carregarExport();
 }
+
+async function carregarExport() {
+  const info = await window.api.exportInfo();
+  document.getElementById('e-auto').checked = info.auto;
+  document.getElementById('e-pasta').textContent = info.pasta;
+  const od = document.getElementById('e-onedrive');
+  od.textContent = info.temOneDrive
+    ? 'OneDrive detectado — o PDF vai para dentro dele automaticamente.'
+    : 'OneDrive não detectado. Você pode escolher a pasta manualmente em "Mudar pasta".';
+}
+
+document.getElementById('e-auto').addEventListener('change', async (e) => {
+  await window.api.exportSalvarConfig({ exportarAuto: e.target.checked });
+});
+
+document.getElementById('e-exportar').addEventListener('click', async () => {
+  const msg = document.getElementById('e-msg');
+  msg.style.color = ''; msg.textContent = '⏳ Gerando PDF…';
+  const res = await window.api.exportAgora();
+  if (res.ok) {
+    msg.style.color = ''; msg.textContent = '✅ PDF atualizado! Abra pelo OneDrive no celular.';
+    carregarExport();
+  } else {
+    msg.style.color = '#dc2626'; msg.textContent = '⚠️ ' + res.erro;
+  }
+});
+
+document.getElementById('e-mudar').addEventListener('click', async () => {
+  const res = await window.api.exportEscolherPasta();
+  if (res && res.ok) {
+    document.getElementById('e-pasta').textContent = res.pasta;
+    const msg = document.getElementById('e-msg');
+    msg.style.color = ''; msg.textContent = '✅ Pasta alterada. Clique em "Gerar PDF agora".';
+  }
+});
 document.getElementById('form-config').addEventListener('submit', async (e) => {
   e.preventDefault();
   await window.api.salvarConfig({
