@@ -88,10 +88,26 @@ function blocoAlerta(classe, titulo, lista, vazio) {
   return div;
 }
 
+// Chave enxuta do nome (igual à do sistema) para detectar nomes repetidos.
+function chaveNome(nome) {
+  return String(nome || '')
+    .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase().replace(/[^a-z0-9]/g, '');
+}
+
 // ---------- Lista ----------
 async function carregarLista() {
   const termo = document.getElementById('busca').value;
-  const meds = termo ? await window.api.buscar(termo) : await window.api.listar();
+  const todos = await window.api.listar();
+  const meds = termo ? await window.api.buscar(termo) : todos;
+
+  // Conta quantas vezes cada nome aparece, para marcar possíveis duplicados.
+  const contagem = {};
+  for (const m of todos) {
+    const k = chaveNome(m.nome);
+    if (k) contagem[k] = (contagem[k] || 0) + 1;
+  }
+
   const lista = document.getElementById('lista');
   lista.innerHTML = '';
   if (meds.length === 0) {
@@ -104,12 +120,14 @@ async function carregarLista() {
     card.className = 'card-med';
     const foto = primeiraFoto(m);
     const mini = foto ? `<img class="miniatura" src="${foto}" />` : `<div class="miniatura">💊</div>`;
+    const ehDup = contagem[chaveNome(m.nome)] > 1;
     card.innerHTML = `${mini}
       <div class="info">
         <h3>${esc(m.nome)}</h3>
         <div class="meta">${esc(m.formaFarmaceutica)} · ${m.quantidade} un.</div>
         <div class="meta">${esc(textoValidade(m))}</div>
         <span class="badge ${m.status}">${ROTULO_STATUS[m.status]}</span>
+        ${ehDup ? '<span class="badge dup">⚠️ Possível duplicado</span>' : ''}
       </div>`;
     card.addEventListener('click', () => abrirDetalhe(m.id));
     lista.appendChild(card);

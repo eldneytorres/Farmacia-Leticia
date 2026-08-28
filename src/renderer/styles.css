@@ -85,6 +85,7 @@ h1 { font-size: 24px; margin-bottom: 22px; }
 .badge.proximo { background: #fef3c7; color: var(--aviso); }
 .badge.vencido { background: #fee2e2; color: var(--perigo); }
 .badge.sem_validade { background: #e2e8f0; color: var(--suave); }
+.badge.dup { background: #ffedd5; color: #9a3412; margin-left: 6px; }
 
 /* Métodos de cadastro */
 .metodos { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 24px; }
