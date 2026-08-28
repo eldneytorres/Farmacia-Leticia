@@ -162,7 +162,12 @@ ipcMain.handle('meds:excluir', (_e, id) => ({ ok: store.excluir(id) }));
 ipcMain.handle('config:ler', () => store.lerConfig());
 ipcMain.handle('config:salvar', (_e, cfg) => ({ ok: true, config: store.salvarConfig(cfg) }));
 
-ipcMain.handle('servidor:info', () => infoServidor);
+ipcMain.handle('servidor:info', () => {
+  if (!infoServidor) return { erro: 'Servidor ainda não iniciou.' };
+  // Devolve só campos serializáveis (sem a função "parar").
+  const { ip, porta, url, qr, erro } = infoServidor;
+  return { ip, porta, url, qr, erro };
+});
 
 ipcMain.handle('ia:extrair', async (_e, caminhos) => {
   try {
