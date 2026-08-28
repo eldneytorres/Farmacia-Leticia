@@ -85,6 +85,12 @@ Basta dar duplo-clique para instalar. Um atalho será criado na área de trabalh
 
 ---
 
+## Atualizar para a versão mais recente
+
+Basta dar **duplo-clique em `ATUALIZAR.bat`**. Ele baixa a versão mais nova
+automaticamente, substitui os arquivos (mantendo seus dados) e reabre o app.
+O número da versão aparece no **canto inferior esquerdo** do aplicativo.
+
 ## Liberar no Firewall do Windows (para o celular alcançar o PC)
 
 Na **primeira vez** que o app iniciar o servidor, o Windows pode mostrar um aviso

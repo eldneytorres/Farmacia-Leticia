@@ -1,5 +1,7 @@
 'use strict';
 
+const APP_VERSION = 'versão 5';
+
 const ROTULO_STATUS = {
   no_prazo: 'No prazo',
   proximo: 'Próximo do vencimento',
@@ -425,4 +427,5 @@ document.getElementById('form-config').addEventListener('submit', async (e) => {
 });
 
 // ---------- Início ----------
+document.getElementById('versao').textContent = APP_VERSION;
 mostrarView('inicio');
