@@ -250,11 +250,52 @@ document.getElementById('form-med').addEventListener('submit', async (e) => {
     fotos: existentes,
     fotosNovas: fotosNovas,
   };
+  // Ao cadastrar um novo (sem id), avisa se já existe um parecido.
+  if (!med.id && med.nome.trim()) {
+    const dups = await window.api.duplicados(med.nome, null);
+    if (dups.length > 0) { mostrarDialogoDuplicado(dups, med); return; }
+  }
+  await salvarMed(med);
+});
+
+async function salvarMed(med) {
   const res = await window.api.salvar(med);
   if (!res.ok) { alert(res.erro); return; }
   fotosNovas = [];
   mostrarView('lista');
-});
+}
+
+// Diálogo quando já existe um medicamento parecido.
+function mostrarDialogoDuplicado(dups, med) {
+  const linhas = dups.map((d) => `
+    <div class="dup-item">
+      <div class="dup-info">
+        <b>${esc(d.nome)}</b>
+        <div class="meta">${esc(d.formaFarmaceutica)} · ${d.quantidade} un. · ${esc(textoValidade(d))}</div>
+      </div>
+      <button class="btn primary dup-ed" data-id="${d.id}">Editar este</button>
+    </div>`).join('');
+
+  document.getElementById('modal-conteudo').innerHTML = `
+    <div class="det-titulo">⚠️ Já existe um medicamento parecido</div>
+    <p>Encontrei ${dups.length === 1 ? 'este medicamento já cadastrado' : 'estes medicamentos já cadastrados'} com nome parecido com <b>“${esc(med.nome)}”</b>:</p>
+    <div class="dup-lista">${linhas}</div>
+    <p style="margin-top:16px">Você pode <b>editar o já cadastrado</b> (por exemplo, atualizar a quantidade ou a validade) ou <b>cadastrar assim mesmo</b> como um item separado.</p>
+    <div class="det-acoes">
+      <button class="btn ghost" id="dup-novo">Cadastrar assim mesmo</button>
+      <button class="btn ghost" id="dup-cancelar">Cancelar</button>
+    </div>`;
+  document.getElementById('modal').classList.remove('oculto');
+
+  document.querySelectorAll('.dup-ed').forEach((b) =>
+    b.addEventListener('click', async () => {
+      const alvo = (await window.api.listar()).find((x) => x.id === b.dataset.id);
+      fecharModal();
+      if (alvo) { fotosNovas = []; editar(alvo); }
+    }));
+  document.getElementById('dup-novo').onclick = () => { fecharModal(); salvarMed(med); };
+  document.getElementById('dup-cancelar').onclick = fecharModal;
+}
 
 // ---------- Extração por IA ----------
 async function processarMidia(caminhos) {

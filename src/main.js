@@ -151,6 +151,10 @@ ipcMain.handle('meds:buscar', (_e, termo) =>
 
 ipcMain.handle('meds:resumo', () => meds.resumir(store.listar()));
 
+ipcMain.handle('meds:duplicados', (_e, { nome, id }) =>
+  meds.encontrarDuplicados(store.listar(), nome, id || undefined).map(meds.comStatus)
+);
+
 ipcMain.handle('meds:salvar', (_e, med) => {
   const faltando = validar(med);
   if (faltando.length > 0) {

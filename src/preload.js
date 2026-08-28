@@ -6,6 +6,7 @@ contextBridge.exposeInMainWorld('api', {
   listar: () => ipcRenderer.invoke('meds:listar'),
   buscar: (termo) => ipcRenderer.invoke('meds:buscar', termo),
   resumo: () => ipcRenderer.invoke('meds:resumo'),
+  duplicados: (nome, id) => ipcRenderer.invoke('meds:duplicados', { nome, id }),
   salvar: (med) => ipcRenderer.invoke('meds:salvar', med),
   excluir: (id) => ipcRenderer.invoke('meds:excluir', id),
 

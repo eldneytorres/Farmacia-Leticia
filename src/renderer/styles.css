@@ -147,4 +147,11 @@ h1 { font-size: 24px; margin-bottom: 22px; }
 .det-campo { margin-top: 14px; }
 .det-campo .rot { font-size: 12px; text-transform: uppercase; letter-spacing: .04em; color: var(--suave); font-weight: 700; }
 .det-campo .val { font-size: 15px; margin-top: 3px; white-space: pre-wrap; }
-.det-acoes { display: flex; gap: 12px; margin-top: 24px; border-top: 1px solid var(--borda); padding-top: 18px; }
+.det-acoes { display: flex; gap: 12px; margin-top: 24px; border-top: 1px solid var(--borda); padding-top: 18px; flex-wrap: wrap; }
+
+/* Diálogo de duplicado */
+.dup-lista { display: flex; flex-direction: column; gap: 10px; margin-top: 12px; }
+.dup-item { display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  background: var(--fundo); border: 1px solid var(--borda); border-radius: 10px; padding: 12px 14px; }
+.dup-info b { font-size: 15px; }
+.dup-item .btn { padding: 8px 14px; font-size: 14px; white-space: nowrap; }

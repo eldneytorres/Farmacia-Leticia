@@ -83,6 +83,8 @@ function htmlRelatorio(medicamentos, resumo) {
   .resumo .p { background: #fef3c7; color: #b45309; }
   .resumo .v { background: #fee2e2; color: #dc2626; }
   .resumo .o { background: #dcfce7; color: #16a34a; }
+  .como-buscar { background: #ecfeff; border: 1px solid #a5e8f0; color: #0e6b7a; border-radius: 8px;
+    padding: 10px 14px; font-size: 12px; margin-bottom: 16px; line-height: 1.45; }
   .item { border: 1px solid #e2e8f0; border-left: 4px solid #94a3b8; border-radius: 8px; padding: 10px 14px; margin-bottom: 9px; page-break-inside: avoid; }
   .item.vencido { border-left-color: #dc2626; }
   .item.proximo { border-left-color: #d97706; }
@@ -107,6 +109,7 @@ function htmlRelatorio(medicamentos, resumo) {
     <span class="p">Vencem em breve: ${resumo.proximos}</span>
     <span class="v">Vencidos: ${resumo.vencidos}</span>
   </div>
+  <div class="como-buscar">🔍 <b>Para procurar um remédio:</b> toque na <b>lupa</b> do leitor de PDF e digite o nome — ou toque no <b>microfone 🎤</b> do teclado do celular e <b>fale</b> o nome do medicamento.</div>
   ${itens}${vazio}
   <div class="rodape">Gerado automaticamente pela Farmacinha Leticia. As informações são para organização doméstica — confira sempre a bula e consulte um profissional de saúde.</div>
 </body></html>`;

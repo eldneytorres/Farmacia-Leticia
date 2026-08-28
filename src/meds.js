@@ -65,6 +65,31 @@ function correspondeBusca(med, termo) {
     .every((palavra) => alvo.includes(palavra));
 }
 
+// Chave "enxuta" do nome: sem acentos, sem espaços e sem pontuação,
+// para comparar nomes parecidos (ex.: "Dipirona 500mg" e "Dipirona 500 mg").
+function chaveNome(nome) {
+  return normalizar(nome).replace(/[^a-z0-9]/g, '');
+}
+
+// Considera duplicado quando os nomes são iguais ou um contém o outro
+// (com pelo menos 4 caracteres em comum), para evitar coincidências bobas.
+function possivelDuplicado(nomeA, nomeB) {
+  const a = chaveNome(nomeA);
+  const b = chaveNome(nomeB);
+  if (!a || !b) return false;
+  if (a === b) return true;
+  const menor = a.length <= b.length ? a : b;
+  const maior = a.length <= b.length ? b : a;
+  return menor.length >= 4 && maior.includes(menor);
+}
+
+// Devolve os medicamentos já cadastrados com nome parecido (ignora o próprio id).
+function encontrarDuplicados(medicamentos, nome, idAtual) {
+  return medicamentos.filter(
+    (m) => m.id !== idAtual && possivelDuplicado(m.nome, nome)
+  );
+}
+
 // Resumo para a tela inicial.
 function resumir(medicamentos) {
   const resumo = {
@@ -92,5 +117,7 @@ module.exports = {
   statusValidade,
   comStatus,
   correspondeBusca,
+  possivelDuplicado,
+  encontrarDuplicados,
   resumir,
 };
