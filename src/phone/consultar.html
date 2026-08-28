@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>Farmacinha Leticia — Consultar</title>
+<style>
+  :root { color-scheme: light dark; }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; font-family: -apple-system, system-ui, sans-serif;
+    background: #0f766e; color: #fff; min-height: 100vh;
+    padding: env(safe-area-inset-top) 16px 40px;
+  }
+  header { text-align: center; padding: 22px 0 6px; }
+  header h1 { font-size: 21px; margin: 0; }
+  header p { margin: 6px 0 0; opacity: .9; font-size: 14px; }
+  .topo-link { display: inline-block; margin-top: 14px; color: #fff; background: rgba(255,255,255,.16);
+    padding: 10px 16px; border-radius: 999px; text-decoration: none; font-size: 14px; font-weight: 600; }
+  .busca-wrap { margin-top: 16px; }
+  #busca {
+    width: 100%; padding: 16px 18px; border: 0; border-radius: 14px;
+    font-size: 17px; box-shadow: 0 6px 20px rgba(0,0,0,.2);
+  }
+  #status { text-align: center; margin-top: 18px; font-size: 15px; opacity: .95; }
+  #resultados { margin-top: 16px; display: flex; flex-direction: column; gap: 12px; }
+  .item {
+    background: #fff; color: #1f2937; border-radius: 14px; padding: 16px 18px;
+    box-shadow: 0 4px 16px rgba(0,0,0,.18);
+  }
+  .item h3 { margin: 0 0 4px; font-size: 17px; }
+  .item .meta { font-size: 13px; color: #64748b; }
+  .badge { display: inline-block; padding: 4px 12px; border-radius: 999px; font-size: 13px; font-weight: 700; margin-top: 10px; }
+  .badge.no_prazo { background: #dcfce7; color: #16a34a; }
+  .badge.proximo { background: #fef3c7; color: #b45309; }
+  .badge.vencido { background: #fee2e2; color: #dc2626; }
+  .badge.sem_validade { background: #e2e8f0; color: #64748b; }
+  .toggle { margin-top: 12px; color: #0f766e; font-weight: 700; font-size: 14px; cursor: pointer; user-select: none; }
+  .detalhes { margin-top: 10px; display: none; }
+  .detalhes.aberto { display: block; }
+  .campo-det { margin-top: 10px; }
+  .campo-det .rot { font-size: 11px; text-transform: uppercase; letter-spacing: .04em; color: #64748b; font-weight: 700; }
+  .campo-det .val { font-size: 14.5px; margin-top: 2px; white-space: pre-wrap; }
+  .vazio { text-align: center; opacity: .9; padding: 20px; line-height: 1.5; }
+</style>
+</head>
+<body>
+  <header>
+    <h1>🔎 Consultar farmácia</h1>
+    <p>Veja se já tem o remédio em casa</p>
+    <a id="linkCadastrar" class="topo-link" href="#">📷 Cadastrar um remédio novo</a>
+  </header>
+
+  <div class="busca-wrap">
+    <input type="search" id="busca" placeholder="Digite o nome ou o sintoma (ex.: dor, febre)…" autocomplete="off" />
+  </div>
+
+  <div id="status"></div>
+  <div id="resultados"></div>
+
+<script>
+(function () {
+  var token = new URLSearchParams(location.search).get('t') || '';
+  document.getElementById('linkCadastrar').href = '/?t=' + encodeURIComponent(token);
+  var busca = document.getElementById('busca');
+  var status = document.getElementById('status');
+  var resultados = document.getElementById('resultados');
+  var timer = null;
+
+  function esc(s) {
+    return String(s == null ? '' : s).replace(/[&<>"]/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c];
+    });
+  }
+  function fmtData(iso) {
+    if (!iso) return '—';
+    var p = iso.split('-'); return p[2] + '/' + p[1] + '/' + p[0];
+  }
+  function textoValidade(m) {
+    var d = m.diasParaVencer;
+    if (d === null || d === undefined) return 'Sem validade';
+    if (d < 0) return 'Venceu há ' + Math.abs(d) + ' dia(s)';
+    if (d === 0) return 'Vence hoje';
+    return 'Vence em ' + d + ' dia(s) — ' + fmtData(m.validade);
+  }
+  var ROT = { no_prazo: 'No prazo', proximo: 'Próximo do vencimento', vencido: 'Vencido', sem_validade: 'Sem validade' };
+
+  function render(lista, termo) {
+    resultados.innerHTML = '';
+    if (!termo) { status.textContent = 'Digite acima para pesquisar.'; return; }
+    if (lista.length === 0) {
+      status.innerHTML = '';
+      resultados.innerHTML = '<div class="vazio">😕 Nenhum remédio encontrado para <b>“' + esc(termo) + '”</b>.<br>Talvez você não tenha em casa.</div>';
+      return;
+    }
+    status.textContent = lista.length + ' resultado(s):';
+    lista.forEach(function (m) {
+      var div = document.createElement('div');
+      div.className = 'item';
+      div.innerHTML =
+        '<h3>' + esc(m.nome) + '</h3>' +
+        '<div class="meta">' + esc(m.formaFarmaceutica) + ' · ' + m.quantidade + ' un.</div>' +
+        '<div class="meta">' + esc(textoValidade(m)) + '</div>' +
+        '<span class="badge ' + m.status + '">' + (ROT[m.status] || m.status) + '</span>' +
+        '<div class="toggle">Ver detalhes ▾</div>' +
+        '<div class="detalhes">' +
+          campo('Para que serve', m.paraQueServe) +
+          campo('Dosagem para adulto', m.dosagemAdulto) +
+          campo('Contraindicações', m.contraindicacoes) +
+        '</div>';
+      var tgl = div.querySelector('.toggle');
+      var det = div.querySelector('.detalhes');
+      tgl.addEventListener('click', function () {
+        var aberto = det.classList.toggle('aberto');
+        tgl.textContent = aberto ? 'Ocultar detalhes ▴' : 'Ver detalhes ▾';
+      });
+      resultados.appendChild(div);
+    });
+  }
+  function campo(rot, val) {
+    if (!val) return '';
+    return '<div class="campo-det"><div class="rot">' + rot + '</div><div class="val">' + esc(val) + '</div></div>';
+  }
+
+  function pesquisar() {
+    var termo = busca.value.trim();
+    if (!termo) { render([], ''); return; }
+    status.textContent = 'Procurando…';
+    fetch('/api/buscar?t=' + encodeURIComponent(token) + '&q=' + encodeURIComponent(termo))
+      .then(function (r) { return r.json(); })
+      .then(function (r) {
+        if (!r.ok) { status.textContent = '⚠️ ' + (r.erro || 'Erro na busca.'); return; }
+        render(r.resultados || [], termo);
+      })
+      .catch(function () {
+        status.textContent = '⚠️ Não consegui consultar. Confirme que está na mesma rede Wi-Fi do computador e que o app está aberto.';
+      });
+  }
+
+  busca.addEventListener('input', function () {
+    clearTimeout(timer);
+    timer = setTimeout(pesquisar, 250);
+  });
+  render([], '');
+})();
+</script>
+</body>
+</html>

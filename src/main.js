@@ -98,6 +98,8 @@ app.whenReady().then(async () => {
       onArquivos: (arquivos) => {
         if (janela) janela.webContents.send('captura:recebida', arquivos);
       },
+      buscar: (termo) =>
+        store.listar().filter((m) => meds.correspondeBusca(m, termo)).map(meds.comStatus),
     });
     infoServidor.qr = await QRCode.toDataURL(infoServidor.url, { margin: 1, width: 240 });
   } catch (e) {
@@ -165,8 +167,8 @@ ipcMain.handle('config:salvar', (_e, cfg) => ({ ok: true, config: store.salvarCo
 ipcMain.handle('servidor:info', () => {
   if (!infoServidor) return { erro: 'Servidor ainda não iniciou.' };
   // Devolve só campos serializáveis (sem a função "parar").
-  const { ip, porta, url, qr, erro } = infoServidor;
-  return { ip, porta, url, qr, erro };
+  const { ip, porta, url, urlConsulta, qr, erro } = infoServidor;
+  return { ip, porta, url, urlConsulta, qr, erro };
 });
 
 ipcMain.handle('ia:extrair', async (_e, caminhos) => {

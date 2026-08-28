@@ -26,7 +26,7 @@ function ipLocal() {
   return preferido || candidatos[0] || '127.0.0.1';
 }
 
-function iniciarServidor({ porta = 41789, uploadDir, onArquivos }) {
+function iniciarServidor({ porta = 41789, uploadDir, onArquivos, buscar }) {
   const app = express();
   const token = crypto.randomBytes(8).toString('hex'); // pareamento simples
   const ip = ipLocal();
@@ -64,6 +64,20 @@ function iniciarServidor({ porta = 41789, uploadDir, onArquivos }) {
     res.json({ ok: true, quantidade: arquivos.length });
   });
 
+  // Página de consulta pelo celular.
+  app.get('/consultar', (req, res) => {
+    res.sendFile(path.join(__dirname, 'phone', 'consultar.html'));
+  });
+
+  // Busca de medicamentos (usada pela página de consulta no celular).
+  app.get('/api/buscar', (req, res) => {
+    if (req.query.t !== token) {
+      return res.status(403).json({ ok: false, erro: 'Código inválido.' });
+    }
+    const resultados = typeof buscar === 'function' ? buscar(req.query.q || '') : [];
+    res.json({ ok: true, resultados });
+  });
+
   return new Promise((resolve) => {
     const servidor = app.listen(porta, '0.0.0.0', () => {
       const info = {
@@ -71,6 +85,7 @@ function iniciarServidor({ porta = 41789, uploadDir, onArquivos }) {
         porta,
         token,
         url: `http://${ip}:${porta}/?t=${token}`,
+        urlConsulta: `http://${ip}:${porta}/consultar?t=${token}`,
         parar: () => servidor.close(),
       };
       resolve(info);

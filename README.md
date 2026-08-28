@@ -39,6 +39,13 @@ revisar.
 
 > Vídeos curtos também funcionam: o app extrai alguns quadros automaticamente.
 
+### Consultar pelo celular
+
+Na mesma tela do celular (a que abre pelo QR Code), toque em **“🔎 Consultar se já
+tenho um remédio”**. Você digita o nome ou o sintoma e vê na hora o que já tem em
+casa, com a validade e os detalhes — útil para checar na farmácia ou no mercado.
+Também é possível salvar o endereço nos favoritos do Safari para abrir direto.
+
 ---
 
 ## Pré-requisitos

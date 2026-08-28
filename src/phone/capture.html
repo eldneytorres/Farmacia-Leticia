@@ -15,6 +15,8 @@
   header { text-align: center; padding: 22px 0 8px; }
   header h1 { font-size: 21px; margin: 0; }
   header p { margin: 6px 0 0; opacity: .9; font-size: 14px; }
+  .topo-link { display: inline-block; margin-top: 14px; color: #fff; background: rgba(255,255,255,.16);
+    padding: 10px 16px; border-radius: 999px; text-decoration: none; font-size: 14px; font-weight: 600; }
   .card {
     background: #fff; color: #1f2937; border-radius: 16px;
     padding: 18px; margin-top: 16px; box-shadow: 0 6px 24px rgba(0,0,0,.25);
@@ -40,6 +42,7 @@
   <header>
     <h1>💊 Farmacinha Leticia</h1>
     <p>Fotografe a embalagem do remédio</p>
+    <a id="linkConsultar" class="topo-link" href="#">🔎 Consultar se já tenho um remédio</a>
   </header>
 
   <div class="card">
@@ -60,6 +63,7 @@
 <script>
 (function () {
   var token = new URLSearchParams(location.search).get('t') || '';
+  document.getElementById('linkConsultar').href = '/consultar?t=' + encodeURIComponent(token);
   var arquivos = [];
   var previews = document.getElementById('previews');
   var status = document.getElementById('status');
