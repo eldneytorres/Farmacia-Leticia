@@ -8,7 +8,7 @@ Write-Host '   Atualizando a Farmacinha Leticia...'
 Write-Host '============================================'
 Write-Host ''
 
-$url = 'https://codeload.github.com/eldneytorres/Farmacinha-Let-cia/zip/refs/heads/claude/oi-mssu57'
+$url = 'https://codeload.github.com/eldneytorres/Farmacia-Leticia/zip/refs/heads/claude/oi-mssu57'
 $tmp = Join-Path $env:TEMP ('farma_' + [guid]::NewGuid())
 New-Item -ItemType Directory -Path $tmp | Out-Null
 $zip = Join-Path $tmp 'app.zip'
