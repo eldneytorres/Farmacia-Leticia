@@ -1,6 +1,6 @@
 'use strict';
 
-const APP_VERSION = 'versão 5';
+const APP_VERSION = 'versão 6';
 
 const ROTULO_STATUS = {
   no_prazo: 'No prazo',

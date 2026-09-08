@@ -98,7 +98,7 @@ Responda APENAS com um objeto JSON válido, sem texto antes ou depois, com exata
   "nome": "nome comercial e princípio ativo, ex.: 'Dipirona Monoidratada 500mg (Novalgina)'",
   "formaFarmaceutica": "ex.: comprimido, cápsula, xarope, gotas, pomada, solução injetável",
   "quantidade": número inteiro de unidades na embalagem (ou null se não der para ver),
-  "validade": "data de validade no formato YYYY-MM-DD (ou null se não estiver visível/legível)",
+  "validade": "APENAS a data de VALIDADE (vencimento), no formato YYYY-MM-DD (ou null se não estiver visível/legível)",
   "paraQueServe": "para que serve o medicamento, em linguagem simples (1 a 3 frases)",
   "dosagemAdulto": "dosagem recomendada usual para adulto, se conhecida (1 a 3 frases)",
   "contraindicacoes": "principais contraindicações e cuidados importantes",
@@ -107,6 +107,11 @@ Responda APENAS com um objeto JSON válido, sem texto antes ou depois, com exata
 }
 
 Regras:
+- MUITO IMPORTANTE sobre a data: as embalagens costumam trazer DUAS datas — a de FABRICAÇÃO e a de VALIDADE. Você deve usar SOMENTE a data de VALIDADE (vencimento). NUNCA use a data de fabricação.
+  - "Fabricação" aparece como: "Fab", "Fab.", "F", "F:", "Data de fabricação", "Manuf", "MFG".
+  - "Validade" aparece como: "Val", "Val.", "V", "V:", "Vto", "Venc", "Vence", "Validade", "Data de validade", "EXP", "Exp".
+  - Quando houver duas datas sem rótulo claro, a validade é sempre a MAIS DISTANTE no futuro (a maior). A de fabricação é a mais antiga.
+  - Se você só conseguir ler a data de fabricação e não a de validade, retorne "validade": null (não invente e não use a fabricação).
 - Use exatamente o formato YYYY-MM-DD para a validade. Se a embalagem mostrar apenas mês/ano (MM/AAAA), use o último dia daquele mês.
 - Preencha "paraQueServe", "dosagemAdulto" e "contraindicacoes" com informação geral e amplamente conhecida sobre o princípio ativo, mesmo que não esteja impresso na caixa. Seja prudente e conservador.
 - Se não conseguir identificar o medicamento com segurança, use "confianca": "baixa" e preencha o que for possível.
