@@ -1,6 +1,6 @@
 'use strict';
 
-const APP_VERSION = 'versão 6';
+const APP_VERSION = 'versão 7';
 
 const ROTULO_STATUS = {
   no_prazo: 'No prazo',
@@ -31,6 +31,28 @@ function fmtData(iso) {
   if (!iso) return '—';
   const [a, m, d] = iso.split('-');
   return `${d}/${m}/${a}`;
+}
+// Converte "YYYY-MM-DD" (interno) para "dd/mm/aaaa" (exibição no campo).
+function isoParaBR(iso) {
+  const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(String(iso || ''));
+  return m ? `${m[3]}/${m[2]}/${m[1]}` : '';
+}
+// Converte "dd/mm/aaaa" digitado para "YYYY-MM-DD"; devolve '' se a data for inválida.
+function brParaIso(br) {
+  const m = /^(\d{2})\/(\d{2})\/(\d{4})$/.exec(String(br || '').trim());
+  if (!m) return '';
+  const d = +m[1], mo = +m[2], a = +m[3];
+  if (mo < 1 || mo > 12 || d < 1 || d > 31) return '';
+  const dt = new Date(a, mo - 1, d);
+  if (dt.getFullYear() !== a || dt.getMonth() !== mo - 1 || dt.getDate() !== d) return '';
+  return `${m[3]}-${m[2]}-${m[1]}`;
+}
+// Máscara: insere as barras automaticamente enquanto a pessoa digita.
+function aplicarMascaraData(e) {
+  let v = e.target.value.replace(/\D/g, '').slice(0, 8);
+  if (v.length >= 5) v = v.slice(0, 2) + '/' + v.slice(2, 4) + '/' + v.slice(4);
+  else if (v.length >= 3) v = v.slice(0, 2) + '/' + v.slice(2);
+  e.target.value = v;
 }
 function textoValidade(med) {
   const dias = med.diasParaVencer;
@@ -216,7 +238,7 @@ function editar(m) {
   document.getElementById('f-nome').value = m.nome || '';
   document.getElementById('f-forma').value = m.formaFarmaceutica || '';
   document.getElementById('f-quantidade').value = m.quantidade ?? '';
-  document.getElementById('f-validade').value = m.validade || '';
+  document.getElementById('f-validade').value = isoParaBR(m.validade);
   document.getElementById('f-para').value = m.paraQueServe || '';
   document.getElementById('f-dosagem').value = m.dosagemAdulto || '';
   document.getElementById('f-contra').value = m.contraindicacoes || '';
@@ -252,6 +274,8 @@ document.getElementById('btn-arquivo').onclick = async () => {
   if (caminhos && caminhos.length) processarMidia(caminhos);
 };
 
+document.getElementById('f-validade').addEventListener('input', aplicarMascaraData);
+
 document.getElementById('btn-cancelar').onclick = () => prepararCadastro();
 
 document.getElementById('form-med').addEventListener('submit', async (e) => {
@@ -262,7 +286,7 @@ document.getElementById('form-med').addEventListener('submit', async (e) => {
     nome: document.getElementById('f-nome').value,
     formaFarmaceutica: document.getElementById('f-forma').value,
     quantidade: document.getElementById('f-quantidade').value,
-    validade: document.getElementById('f-validade').value,
+    validade: brParaIso(document.getElementById('f-validade').value),
     paraQueServe: document.getElementById('f-para').value,
     dosagemAdulto: document.getElementById('f-dosagem').value,
     contraindicacoes: document.getElementById('f-contra').value,
@@ -270,6 +294,12 @@ document.getElementById('form-med').addEventListener('submit', async (e) => {
     fotos: existentes,
     fotosNovas: fotosNovas,
   };
+  // Checagem amigável da data antes de salvar.
+  if (!med.validade) {
+    alert('A data de validade está vazia ou inválida. Digite no formato dia/mês/ano, ex.: 31/12/2027.');
+    document.getElementById('f-validade').focus();
+    return;
+  }
   // Ao cadastrar um novo (sem id), avisa se já existe um parecido.
   if (!med.id && med.nome.trim()) {
     const dups = await window.api.duplicados(med.nome, null);
@@ -341,7 +371,7 @@ async function processarMidia(caminhos) {
   document.getElementById('f-nome').value = d.nome || '';
   document.getElementById('f-forma').value = d.formaFarmaceutica || '';
   document.getElementById('f-quantidade').value = d.quantidade || '';
-  document.getElementById('f-validade').value = d.validade || '';
+  document.getElementById('f-validade').value = isoParaBR(d.validade);
   document.getElementById('f-para').value = d.paraQueServe || '';
   document.getElementById('f-dosagem').value = d.dosagemAdulto || '';
   document.getElementById('f-contra').value = d.contraindicacoes || '';
