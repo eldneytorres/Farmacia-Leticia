@@ -57,16 +57,19 @@ function htmlRelatorio(medicamentos, resumo) {
     return String(a.nome).localeCompare(String(b.nome), 'pt-BR');
   });
 
-  const itens = lista.map((m) => `
+  const campo = (rot, val) => val
+    ? `<div class="c"><div class="rot">${rot}</div><div class="txt">${esc(val)}</div></div>` : '';
+
+  const itens = lista.map((m, i) => `
     <div class="item ${m.status}">
       <div class="cab">
-        <span class="nome">${esc(m.nome)}</span>
+        <span class="nome">${i + 1}. ${esc(m.nome)}</span>
         <span class="tag ${m.status}">${ROT_STATUS[m.status] || ''}</span>
       </div>
       <div class="meta">${esc(m.formaFarmaceutica)} &middot; ${esc(String(m.quantidade))} unidade(s) &middot; ${esc(textoValidade(m))}</div>
-      ${m.paraQueServe ? `<div class="c"><b>Para que serve:</b> ${esc(m.paraQueServe)}</div>` : ''}
-      ${m.dosagemAdulto ? `<div class="c"><b>Dosagem (adulto):</b> ${esc(m.dosagemAdulto)}</div>` : ''}
-      ${m.contraindicacoes ? `<div class="c"><b>Contraindicações:</b> ${esc(m.contraindicacoes)}</div>` : ''}
+      ${campo('Para que serve', m.paraQueServe)}
+      ${campo('Dosagem (adulto)', m.dosagemAdulto)}
+      ${campo('Contraindicações', m.contraindicacoes)}
     </div>`).join('');
 
   const vazio = lista.length === 0
@@ -85,19 +88,24 @@ function htmlRelatorio(medicamentos, resumo) {
   .resumo .o { background: #dcfce7; color: #16a34a; }
   .como-buscar { background: #ecfeff; border: 1px solid #a5e8f0; color: #0e6b7a; border-radius: 8px;
     padding: 10px 14px; font-size: 12px; margin-bottom: 16px; line-height: 1.45; }
-  .item { border: 1px solid #e2e8f0; border-left: 4px solid #94a3b8; border-radius: 8px; padding: 10px 14px; margin-bottom: 9px; page-break-inside: avoid; }
+  .item { border: 1.5px solid #cbd5e1; border-left: 6px solid #94a3b8; border-radius: 10px;
+    padding: 12px 16px 14px; margin-bottom: 18px; background: #fff;
+    page-break-inside: avoid; break-inside: avoid; }
   .item.vencido { border-left-color: #dc2626; }
   .item.proximo { border-left-color: #d97706; }
   .item.no_prazo { border-left-color: #16a34a; }
-  .cab { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; }
-  .nome { font-size: 15px; font-weight: 700; }
+  .cab { display: flex; justify-content: space-between; align-items: baseline; gap: 10px;
+    border-bottom: 1px solid #e2e8f0; padding-bottom: 7px; margin-bottom: 7px; }
+  .nome { font-size: 15px; font-weight: 700; color: #0f172a; }
   .tag { font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 999px; white-space: nowrap; }
   .tag.vencido { background: #fee2e2; color: #dc2626; }
   .tag.proximo { background: #fef3c7; color: #b45309; }
   .tag.no_prazo { background: #dcfce7; color: #16a34a; }
   .tag.sem_validade { background: #e2e8f0; color: #64748b; }
-  .meta { font-size: 12px; color: #475569; margin: 3px 0 6px; }
-  .c { font-size: 12px; line-height: 1.4; margin-top: 2px; }
+  .meta { font-size: 12px; color: #475569; margin: 0 0 4px; font-weight: 600; }
+  .c { margin-top: 8px; }
+  .c .rot { font-size: 10px; text-transform: uppercase; letter-spacing: .04em; color: #0f766e; font-weight: 700; }
+  .c .txt { font-size: 12px; line-height: 1.45; color: #1f2937; white-space: pre-line; margin-top: 1px; }
   .nenhum { color: #64748b; font-size: 14px; }
   .rodape { margin-top: 22px; font-size: 10.5px; color: #94a3b8; border-top: 1px solid #e2e8f0; padding-top: 10px; }
 </style></head><body>
