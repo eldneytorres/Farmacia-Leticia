@@ -50,12 +50,10 @@ function textoValidade(m) {
 
 function htmlRelatorio(medicamentos, resumo) {
   const agora = new Date().toLocaleString('pt-BR');
-  const lista = medicamentos.slice().sort((a, b) => {
-    const oa = ORDEM[a.status] ?? 9;
-    const ob = ORDEM[b.status] ?? 9;
-    if (oa !== ob) return oa - ob;
-    return String(a.nome).localeCompare(String(b.nome), 'pt-BR');
-  });
+  // Ordena em ordem alfabética por nome (ignora a validade).
+  const lista = medicamentos.slice().sort((a, b) =>
+    String(a.nome).localeCompare(String(b.nome), 'pt-BR', { sensitivity: 'base', numeric: true })
+  );
 
   const campo = (rot, val) => val
     ? `<div class="c"><div class="rot">${rot}</div><div class="txt">${esc(val)}</div></div>` : '';
